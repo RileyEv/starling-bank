@@ -7,7 +7,7 @@ module Bank.Starling.API.UserIdentities
 import Bank.Starling.API.Core
   ( AccessToken
   , Endpoint
-  , basicGetAuthReq
+  , getWithAuth
   )
 
     
@@ -20,10 +20,9 @@ import Bank.Starling.API.Schemas
 -- | GET: /api/v2/identity/individual
 --   Scopes: ["authorising-individual:read"]
 individual :: Endpoint -> AccessToken -> IO (Maybe Individual)
-individual = basicGetAuthReq "/api/v2/identity/individual"
+individual = getWithAuth "/api/v2/identity/individual"
 
 -- | GET: /api/v2/identity/token
 --   Scopes: None
 token :: Endpoint -> AccessToken -> IO (Maybe TokenIdentity)
-token = basicGetAuthReq "/api/v2/identity/token"
-
+token = getWithAuth "/api/v2/identity/token"

@@ -1,4 +1,11 @@
-module Bank.Starling.API.Core where
+module Bank.Starling.API.Core
+  ( Environment(..)
+  , Endpoint(..)
+  , AccessToken(..)
+  , (</>)
+  , getWithAuth
+  , getApiEndpoint
+  ) where
 
 import Control.Lens
   ( (&)
@@ -15,6 +22,8 @@ import Network.Wreq
   , auth
   , responseBody
   )
+import System.FilePath.Posix ((</>))
+import System.Environment (getEnvironment)
 
 
 data Environment = Sandbox | Production
@@ -26,8 +35,8 @@ getApiEndpoint Sandbox    = Endpoint "https://api-sandbox.starlingbank.com"
 getApiEndpoint Production = Endpoint "https://api.starlingbank.com"
 
 
-basicGetAuthReq :: FromJSON a => String -> Endpoint -> AccessToken -> IO (Maybe a)
-basicGetAuthReq uri (Endpoint endpoint) (AccessToken accessToken) = do
+getWithAuth :: FromJSON a => String -> Endpoint -> AccessToken -> IO (Maybe a)
+getWithAuth uri (Endpoint endpoint) (AccessToken accessToken) = do
   let opts = defaults & auth ?~ oauth2Bearer (fromString accessToken)
   r <- asJSON =<< getWith opts (endpoint ++ uri)
   return (r ^. responseBody)
