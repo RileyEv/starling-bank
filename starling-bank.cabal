@@ -24,6 +24,7 @@ library
     exposed-modules:
         Bank.Starling
       , Bank.Starling.API.Accounts
+      , Bank.Starling.API.AccountHolder
       , Bank.Starling.API.Core
       , Bank.Starling.API.UserIdentities
       , Bank.Starling.API.Schemas

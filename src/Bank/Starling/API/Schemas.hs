@@ -13,6 +13,31 @@ data Account = Account
   , name            :: String
   } deriving (Show, Generic, ToJSON, FromJSON)
 
+data AccountHolder = AccountHolder
+  { accoundHolderUid  :: AccountHolderUid
+  , accountHolderType :: AccountHolderType
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+newtype AccountHolderName = AccountHolderName
+  { accountHolderName :: String
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data AccountHolderType = IndividualAccount | BusinessAccount | SoleTraderAccount | JointAccount | BankingAsAService deriving (Show, Generic)
+instance FromJSON AccountHolderType where
+  parseJSON = withText "accountType" $ \case
+      "INDIVIDUAL"           -> return IndividualAccount
+      "BUSINESS"             -> return BusinessAccount
+      "SOLE_TRADER"          -> return SoleTraderAccount
+      "JOINT"                -> return JointAccount
+      "BANKING_AS_A_SERVICE" -> return BankingAsAService
+      _                      -> fail "string is not one of known enum values"
+instance ToJSON AccountHolderType where
+  toJSON IndividualAccount = "INDIVIDUAL"
+  toJSON BusinessAccount   = "BUSINESS"
+  toJSON SoleTraderAccount = "SOLE_TRADER"
+  toJSON JointAccount      = "JOINT"
+  toJSON BankingAsAService = "BANKING_AS_A_SERVICE"
+
 data AccountIdentifier = AccountIdentifier
   { identifierType    :: IdentifierType
   , bankIdentifier    :: String
@@ -58,6 +83,15 @@ instance ToJSON AccountType where
 newtype AccountUid = AccountUid String deriving (Show, Generic, ToJSON, FromJSON)
 newtype AccountHolderUid = AccountHolderUid String deriving (Show, Generic, ToJSON, FromJSON)
 
+data Address = Address
+  { line1       :: String
+  , line2       :: Maybe String
+  , line3       :: Maybe String
+  , postTown    :: String
+  , postCode    :: String
+  , countryCode :: String
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
 data Balance = Balance
   { clearedBalance        :: SignedCurrencyAndAmount
   , effectiveBalance      :: SignedCurrencyAndAmount
@@ -66,6 +100,16 @@ data Balance = Balance
   , amount                :: SignedCurrencyAndAmount
   , totalClearedBalance   :: SignedCurrencyAndAmount
   , totalEffectiveBalance :: SignedCurrencyAndAmount
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data Business = Business
+  { companyName               :: String
+  , companyType               :: String
+  , companyCategory           :: String
+  , companySubCategory        :: String
+  , companyRegistrationNumber :: String
+  , email                     :: String
+  , phone                     :: String
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data ConfirmationOfFundsResponse = ConfirmationOfFundsResponse
@@ -115,9 +159,21 @@ data Individual = Individual
   , phoneNumber :: String
   } deriving (Show, Generic, ToJSON, FromJSON)
 
+data Joint = Joint
+  { accountHolderUid :: AccountHolderUid
+  , personOne :: Individual
+  , personTwo :: Individual
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
 data SignedCurrencyAndAmount = SignedCurrencyAndAmount
   { currency   :: Currency
   , minorUnits :: Int
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data SoleTrader = SoleTrader
+  { tradingAsName :: String
+  , businessCategory :: String
+  , businessSubCategory :: String
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data TokenIdentity = TokenIdentity
