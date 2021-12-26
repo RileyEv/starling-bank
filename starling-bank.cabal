@@ -1,0 +1,41 @@
+cabal-version:      2.4
+name:               starling-bank
+version:            0.1.0.0
+
+-- A short (one-line) description of the package.
+-- synopsis:
+
+-- A longer description of the package.
+-- description:
+
+homepage: https://github.com/RileyEv/starling-bank
+bug-reports: https://github.com/RileyEv/starling-bank/issues
+
+-- The license under which the package is released.
+license-file:        LICENSE
+author:              Riley Evans
+maintainer:          haskell@rly.rocks
+-- A copyright notice.
+-- copyright:
+-- category:
+extra-source-files: CHANGELOG.md
+
+library
+    exposed-modules:
+        Bank.Starling
+      , Bank.Starling.API.Accounts
+      , Bank.Starling.API.Core
+      , Bank.Starling.API.UserIdentities
+      , Bank.Starling.API.Schemas
+    other-modules:
+    default-extensions:
+        DeriveGeneric
+
+    build-depends:
+        base >=4 && <5
+      , wreq
+      , bank
+      , lens
+      , aeson
+    hs-source-dirs:   src
+    default-language: Haskell2010
