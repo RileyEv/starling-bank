@@ -1,6 +1,5 @@
 module Bank.Starling.API.UserIdentities
-  ( module Bank.Starling.API.Schemas
-  , individual
+  ( individual
   , token
   ) where
 

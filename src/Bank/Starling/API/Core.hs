@@ -2,6 +2,7 @@ module Bank.Starling.API.Core
   ( Environment(..)
   , Endpoint(..)
   , AccessToken(..)
+  , Month(..)
   , (</>)
   , getWithAuth
   , getApiEndpoint
@@ -29,6 +30,23 @@ import System.Environment (getEnvironment)
 data Environment = Sandbox | Production
 newtype Endpoint = Endpoint String
 newtype AccessToken = AccessToken String
+
+data Month = January | February | March | April
+           | May | June | July | August | September
+           | October | November | December
+instance Show Month where
+  show January   = "JANUARY"
+  show February  = "FEBRUARY"
+  show March     = "MARCH"
+  show April     = "APRIL"
+  show May       = "MAY"
+  show June      = "JUNE"
+  show July      = "JULY"
+  show August    = "AUGUST"
+  show September = "SEPTEMBER"
+  show October   = "OCTOBER"
+  show November  = "NOVEMBER"
+  show December  = "DECEMBER"
 
 getApiEndpoint :: Environment -> Endpoint
 getApiEndpoint Sandbox    = Endpoint "https://api-sandbox.starlingbank.com"

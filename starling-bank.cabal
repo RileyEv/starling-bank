@@ -28,6 +28,7 @@ library
       , Bank.Starling.API.Core
       , Bank.Starling.API.UserIdentities
       , Bank.Starling.API.Schemas
+      , Bank.Starling.API.SpendingInsights
     other-modules:
     default-extensions:
         DeriveGeneric

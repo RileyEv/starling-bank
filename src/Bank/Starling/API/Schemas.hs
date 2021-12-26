@@ -117,8 +117,56 @@ data ConfirmationOfFundsResponse = ConfirmationOfFundsResponse
   , accountWouldBeInOverdraftIfRequestedAmountSpent :: Bool
   } deriving(Show, Generic, ToJSON, FromJSON)
 
-data Currency = UNDEFINED
-  | AED | AFN | ALL | AMD | ANG | AOA | ARS | AUD | AWG | AZN
+data CounterPartyType = Category | Cheque | Customer | Payee | Merchant
+                      | Sender | Starling | LoanCounterParty deriving (Show, Generic)
+instance FromJSON CounterPartyType where
+  parseJSON = withText "accountType" $ \case
+      "CATEGORY" -> return Category
+      "CHEQUE"   -> return Cheque
+      "CUSTOMER" -> return Customer
+      "PAYEE"    -> return Payee
+      "MERCHANT" -> return Merchant
+      "SENDER"   -> return Sender
+      "STARLING" -> return Starling
+      "LOAN"     -> return LoanCounterParty
+      _          -> fail "string is not one of known enum values"
+instance ToJSON CounterPartyType where
+  toJSON Category         = "CATEGORY"
+  toJSON Cheque           = "CHEQUE"
+  toJSON Customer         = "CUSTOMER"
+  toJSON Payee            = "PAYEE"
+  toJSON Merchant         = "MERCHANT"
+  toJSON Sender           = "SENDER"
+  toJSON Starling         = "STARLING"
+  toJSON LoanCounterParty = "LOAN"
+
+data CountryCode
+  = AC | AD | AE | AF | AG | AI | AL | AM | AN | AO | AQ | AR
+  | AS | AT | AU | AW | AX | AZ | BA | BB | BD | BE | BF | BG
+  | BH | BI | BJ | BL | BM | BN | BO | BQ | BR | BS | BT | BU
+  | BV | BW | BY | BZ | CA | CC | CD | CF | CG | CH | CI | CK
+  | CL | CM | CN | CO | CP | CR | CS | CU | CV | CW | CX | CY
+  | CZ | DE | DG | DJ | DK | DM | DO | DZ | EA | EC | EE | EG
+  | EH | ER | ES | ET | EU | EZ | FI | FJ | FK | FM | FO | FR
+  | FX | GA | GB | GD | GE | GF | GG | GH | GI | GL | GM | GN
+  | GP | GQ | GR | GS | GT | GU | GW | GY | HK | HM | HN | HR
+  | HT | HU | IC | ID | IE | IL | IM | IN | IO | IQ | IR | IS
+  | IT | JE | JM | JO | JP | KE | KG | KH | KI | KM | KN | KP
+  | KR | KW | KY | KZ | LA | LB | LC | LI | LK | LR | LS | LT
+  | LU | LV | LY | MA | MC | MD | ME | MF | MG | MH | MK | ML
+  | MM | MN | MO | MP | MQ | MR | MS | MT | MU | MV | MW | MX
+  | MY | MZ | NA | NC | NE | NF | NG | NI | NL | NO | NP | NR
+  | NT | NU | NZ | OM | PA | PE | PF | PG | PH | PK | PL | PM
+  | PN | PR | PS | PT | PW | PY | QA | RE | RO | RS | RU | RW
+  | SA | SB | SC | SD | SE | SF | SG | SH | SI | SJ | SK | SL
+  | SM | SN | SO | SR | SS | ST | SU | SV | SX | SY | SZ | TA
+  | TC | TD | TF | TG | TH | TJ | TK | TL | TM | TN | TO | TP
+  | TR | TT | TV | TW | TZ | UA | UG | UK | UM | US | UY | UZ
+  | VA | VC | VE | VG | VI | VN | VU | WF | WS | XI | XU | XK
+  | YE | YT | YU | ZA | ZM | ZR | ZW deriving (Show, Generic, ToJSON, FromJSON)
+
+data Currency
+  = AED | AFN | ALL | AMD | ANG | AOA | ARS | AUD | AWG | AZN
   | BAM | BBD | BDT | BGN | BHD | BIF | BMD | BND | BOB | BOV
   | BRL | BSD | BTN | BWP | BYN | BYR | BZD | CAD | CDF | CHE
   | CHF | CHW | CLF | CLP | CNY | COP | COU | CRC | CUC | CUP
@@ -171,9 +219,83 @@ data SignedCurrencyAndAmount = SignedCurrencyAndAmount
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data SoleTrader = SoleTrader
-  { tradingAsName :: String
-  , businessCategory :: String
+  { tradingAsName       :: String
+  , businessCategory    :: String
   , businessSubCategory :: String
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+-- TODO: Build from enum
+newtype SpendingCategory = SpendingCategory String deriving (Show, Generic, ToJSON, FromJSON)
+
+data SpendingCategoryBreakdown = SpendingCategoryBreakdown
+  { spendingCategory :: SpendingCategory
+  , totalSpend :: Double
+  , totalRecieved :: Double
+  , netSpend :: Double
+  , netDirection :: TransactionDirection
+  , currency :: Currency
+  , percentage :: Double
+  , transactionCount :: Int
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data SpendingCategorySummary = SpendingCategorySummary
+  { period     :: String
+  , totalSpend :: Double
+  , totalRecieved :: Double
+  , netSpend :: Double
+  , totalSpendNetOut :: Double
+  , totalSpendNetIn  :: Double
+  , currency :: Currency
+  , direction :: TransactionDirection
+  , breakdown :: [SpendingCategoryBreakdown]
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data SpendingCounterPartyBreakdown = SpendingCounterPartyBreakdown
+  { counterPartyUid :: String
+  , counterPartyType :: CounterPartyType
+  , counterPartyName :: String
+  , totalSpend :: Double
+  , totalRecieved :: Double
+  , netSpend :: Double
+  , netDirection :: TransactionDirection
+  , currency :: Currency
+  , percentage :: Double
+  , transactionCount :: Int
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data SpendingCounterPartySummary = SpendingCounterPartySummary
+  { period     :: String
+  , totalSpend :: Double
+  , totalRecieved :: Double
+  , netSpend :: Double
+  , totalSpendNetOut :: Double
+  , totalSpendNetIn  :: Double
+  , currency :: Currency
+  , direction :: TransactionDirection
+  , breakdown :: [SpendingCounterPartyBreakdown]
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data SpendingCountryBreakdown = SpendingCountryBreakdown
+  { countryCode :: CountryCode
+  , totalSpend :: Double
+  , totalRecieved :: Double
+  , netSpend :: Double
+  , netDirection :: TransactionDirection
+  , currency :: Currency
+  , percentage :: Double
+  , transactionCount :: Int
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data SpendingCountrySummary = SpendingCountrySummary
+  { period     :: String
+  , totalSpend :: Double
+  , totalRecieved :: Double
+  , netSpend :: Double
+  , totalSpendNetOut :: Double
+  , totalSpendNetIn  :: Double
+  , currency :: Currency
+  , direction :: TransactionDirection
+  , breakdown :: [SpendingCountryBreakdown]
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data TokenIdentity = TokenIdentity
@@ -185,6 +307,15 @@ data TokenIdentity = TokenIdentity
   , applicationUserUid :: String
   } deriving (Show, Generic, ToJSON, FromJSON)
 
+data TransactionDirection = In | Out deriving (Show, Generic)
+instance FromJSON TransactionDirection where
+  parseJSON = withText "accountType" $ \case
+      "IN"  -> return In
+      "OUT" -> return Out
+      _     -> fail "string is not one of known enum values"
+instance ToJSON TransactionDirection where
+  toJSON In  = "IN"
+  toJSON Out = "OUT"
 
 -- Error
 data ErrorResponse = ErrorResponse
