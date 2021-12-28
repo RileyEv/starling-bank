@@ -22,8 +22,7 @@ extra-source-files: CHANGELOG.md
 
 library
     exposed-modules:
-        Bank.Starling
-      , Bank.Starling.API.Accounts
+        Bank.Starling.API.Accounts
       , Bank.Starling.API.AccountHolder
       , Bank.Starling.API.Addresses
       , Bank.Starling.API.Core
@@ -40,7 +39,6 @@ library
     build-depends:
         base >=4 && <5
       , wreq
-      , bank
       , lens
       , aeson
       , filepath
