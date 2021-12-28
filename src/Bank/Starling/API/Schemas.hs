@@ -97,7 +97,7 @@ data Address = Address
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data Addresses = Addresses
-  { current :: Address
+  { current  :: Address
   , previous :: [Address]
   } deriving (Show, Generic, ToJSON, FromJSON)
 
@@ -126,7 +126,7 @@ data Business = Business
 newtype CategoryUid = CategoryUid UUID deriving (Show, Generic, ToJSON, FromJSON)
 
 data ConfirmationOfFundsResponse = ConfirmationOfFundsResponse
-  { requestedAmountAvailableToSpend :: Bool
+  { requestedAmountAvailableToSpend                 :: Bool
   , accountWouldBeInOverdraftIfRequestedAmountSpent :: Bool
   } deriving(Show, Generic, ToJSON, FromJSON)
 
@@ -200,7 +200,7 @@ data Currency
   | XXX | YER | ZAR | ZMW | ZWL deriving (Show, Generic, ToJSON, FromJSON)
 
 data CurrencyAndAmount = CurrencyAndAmount
-  { currency :: Currency
+  { currency   :: Currency
   , minorUnits :: Int
   } deriving (Show, Generic, ToJSON, FromJSON)
 
@@ -250,8 +250,8 @@ data Individual = Individual
 
 data Joint = Joint
   { accountHolderUid :: AccountHolderUid
-  , personOne :: Individual
-  , personTwo :: Individual
+  , personOne        :: Individual
+  , personTwo        :: Individual
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data LastPayment = LastPayment
@@ -264,28 +264,28 @@ data NextPaymentDatesResponse = NextPaymentDatesResponse
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data Payee = Payee
-  { payeeUid :: PayeeUid
-  , payeeName :: String
-  , phoneNumber :: String
-  , payeeType :: PayeeType
-  , firstName :: Maybe String
-  , middleName :: Maybe String
-  , lastName :: Maybe String
+  { payeeUid     :: PayeeUid
+  , payeeName    :: String
+  , phoneNumber  :: String
+  , payeeType    :: PayeeType
+  , firstName    :: Maybe String
+  , middleName   :: Maybe String
+  , lastName     :: Maybe String
   , businessName :: Maybe String
-  , dateOfBirth :: Maybe Day
-  , accounts :: [PayeeAccount]
+  , dateOfBirth  :: Maybe Day
+  , accounts     :: [PayeeAccount]
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data PayeeAccount = PayeeAccount
-  { payeeAccountUid :: PayeeAccountUid
-  , payeeChannelType :: PayeeChannelType
-  , description :: String
-  , defaultAccount :: Bool
-  , countryCode :: CountryCode
-  , accountIdentifier :: String
-  , bankIdentifier :: String
+  { payeeAccountUid    :: PayeeAccountUid
+  , payeeChannelType   :: PayeeChannelType
+  , description        :: String
+  , defaultAccount     :: Bool
+  , countryCode        :: CountryCode
+  , accountIdentifier  :: String
+  , bankIdentifier     :: String
   , bankIdentifierType :: BankIdentifierType
-  , lastReferences :: [String]
+  , lastReferences     :: [String]
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 newtype PayeeAccountUid = PayeeAccountUid UUID deriving (Show, Generic, ToJSON, FromJSON)
@@ -293,12 +293,12 @@ newtype PayeeAccountUid = PayeeAccountUid UUID deriving (Show, Generic, ToJSON, 
 data PayeeChannelType = BANK_ACCOUNT | SETTLE_UP | NEARBY deriving (Show, Generic, ToJSON, FromJSON)
 
 data PayeePayment = PayeePayment
-  { paymentUid :: PaymentUid
-  , amount :: CurrencyAndAmount
-  , reference :: String
-  , createdAt :: ZonedTime
+  { paymentUid       :: PaymentUid
+  , amount           :: CurrencyAndAmount
+  , reference        :: String
+  , createdAt        :: ZonedTime
   , spendingCategory :: SpendingCategory
-  , paymentAmount :: CurrencyAndAmount
+  , paymentAmount    :: CurrencyAndAmount
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data Payees = Payees
@@ -315,23 +315,23 @@ data Payments = Payments
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data PaymentOrder = PaymentOrder
-  { paymentOrderUid :: PaymentOrderUid
-  , amount :: CurrencyAndAmount
-  , reference :: String
-  , payeeUid :: PayeeUid
-  , payeeAccountUid :: PayeeAccountUid
+  { paymentOrderUid  :: PaymentOrderUid
+  , amount           :: CurrencyAndAmount
+  , reference        :: String
+  , payeeUid         :: PayeeUid
+  , payeeAccountUid  :: PayeeAccountUid
   , spendingCategory :: Maybe String
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data PaymentOrderPayment = PaymentOrderPayment
-  { paymentUid :: PaymentUid
-  , amount :: CurrencyAndAmount
-  , reference :: String
-  , payeeUid :: PayeeUid
-  , payeeAccountUid :: PayeeAccountUid
-  , createdAt :: ZonedTime
-  , completedAt :: Maybe ZonedTime
-  , rejectedAt :: Maybe ZonedTime
+  { paymentUid           :: PaymentUid
+  , amount               :: CurrencyAndAmount
+  , reference            :: String
+  , payeeUid             :: PayeeUid
+  , payeeAccountUid      :: PayeeAccountUid
+  , createdAt            :: ZonedTime
+  , completedAt          :: Maybe ZonedTime
+  , rejectedAt           :: Maybe ZonedTime
   , paymentStatusDetails :: PaymentStatusDetails
   } deriving (Show, Generic, ToJSON, FromJSON)
 
@@ -369,7 +369,7 @@ data PaymentStatusDescription
 
 data PaymentStatusDetails = PaymentStatusDetails
   { paymentStatus :: PaymentStatus
-  , description :: PaymentStatusDescription
+  , description   :: PaymentStatusDescription
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 newtype PaymentUid = PaymentUid UUID deriving (Show, Generic, ToJSON, FromJSON)
@@ -377,30 +377,30 @@ newtype PaymentUid = PaymentUid UUID deriving (Show, Generic, ToJSON, FromJSON)
 data RecurrenceRule = RecurrenceRule
   { startDate :: Day
   , frequency :: String -- enum ?
-  , interval :: Maybe Int
-  , count :: Maybe Int
+  , interval  :: Maybe Int
+  , count     :: Maybe Int
   , untilDate :: Maybe Day
   , weekStart :: Maybe String -- enum ?
-  , days :: Maybe [String] -- enum ?
-  , monthDay :: Maybe Int
+  , days      :: Maybe [String] -- enum ?
+  , monthDay  :: Maybe Int
   , monthWeek :: Maybe Int
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data ScheduledPayment = ScheduledPayment
-  { accountHolderUid :: AccountHolderUid
-  , paymentOrderUid :: PaymentOrderUid
-  , categoryUid :: CategoryUid
+  { accountHolderUid  :: AccountHolderUid
+  , paymentOrderUid   :: PaymentOrderUid
+  , categoryUid       :: CategoryUid
   , nextPaymentAmount :: CurrencyAndAmount
-  , reference :: String
-  , payeeUid :: PayeeUid
-  , payeeAccountUid :: PayeeAccountUid
-  , recepientName :: Maybe String
-  , recurrenceRule :: RecurrenceRule
-  , startDate :: Maybe Day
-  , nextDate :: Maybe Day
-  , endDate :: Maybe Day
-  , paymentType :: String
-  , spendingCategory :: SpendingCategory
+  , reference         :: String
+  , payeeUid          :: PayeeUid
+  , payeeAccountUid   :: PayeeAccountUid
+  , recepientName     :: Maybe String
+  , recurrenceRule    :: RecurrenceRule
+  , startDate         :: Maybe Day
+  , nextDate          :: Maybe Day
+  , endDate           :: Maybe Day
+  , paymentType       :: String
+  , spendingCategory  :: SpendingCategory
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data ScheduledPayments = ScheduledPayments
