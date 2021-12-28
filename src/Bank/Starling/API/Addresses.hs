@@ -13,7 +13,8 @@ import Bank.Starling.API.Schemas
   )
 
 
--- | GET: @​/api​/v2​/addresses@
+-- | GET: <​/api​/v2​/addresses>
+--
 --   Scopes: @["address:read"]@
 addresses :: Endpoint -> AccessToken -> IO (Maybe Addresses)
 addresses = getWithAuth "/api/v2/addresses"
