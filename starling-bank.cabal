@@ -28,6 +28,7 @@ library
       , Bank.Starling.API.Addresses
       , Bank.Starling.API.Core
       , Bank.Starling.API.DirectDebit
+      , Bank.Starling.API.Payees
       , Bank.Starling.API.Payments
       , Bank.Starling.API.Schemas
       , Bank.Starling.API.SpendingInsights

@@ -111,6 +111,8 @@ data Balance = Balance
   , totalEffectiveBalance :: SignedCurrencyAndAmount
   } deriving (Show, Generic, ToJSON, FromJSON)
 
+data BankIdentifierType = SORT_CODE | SWIFT | IBAN | ABA | ABA_WIRE | ABA_ACH deriving (Show, Generic, ToJSON, FromJSON)
+
 data Business = Business
   { companyName               :: String
   , companyType               :: String
@@ -128,28 +130,28 @@ data ConfirmationOfFundsResponse = ConfirmationOfFundsResponse
   , accountWouldBeInOverdraftIfRequestedAmountSpent :: Bool
   } deriving(Show, Generic, ToJSON, FromJSON)
 
-data CounterPartyType = Category | Cheque | Customer | Payee | Merchant
+data CounterPartyType = Category | Cheque | Customer | PayeeCounterParty | Merchant
                       | Sender | Starling | LoanCounterParty deriving (Show, Generic)
 instance FromJSON CounterPartyType where
   parseJSON = withText "accountType" $ \case
       "CATEGORY" -> return Category
       "CHEQUE"   -> return Cheque
       "CUSTOMER" -> return Customer
-      "PAYEE"    -> return Payee
+      "PAYEE"    -> return PayeeCounterParty
       "MERCHANT" -> return Merchant
       "SENDER"   -> return Sender
       "STARLING" -> return Starling
       "LOAN"     -> return LoanCounterParty
       _          -> fail "string is not one of known enum values"
 instance ToJSON CounterPartyType where
-  toJSON Category         = "CATEGORY"
-  toJSON Cheque           = "CHEQUE"
-  toJSON Customer         = "CUSTOMER"
-  toJSON Payee            = "PAYEE"
-  toJSON Merchant         = "MERCHANT"
-  toJSON Sender           = "SENDER"
-  toJSON Starling         = "STARLING"
-  toJSON LoanCounterParty = "LOAN"
+  toJSON Category          = "CATEGORY"
+  toJSON Cheque            = "CHEQUE"
+  toJSON Customer          = "CUSTOMER"
+  toJSON PayeeCounterParty = "PAYEE"
+  toJSON Merchant          = "MERCHANT"
+  toJSON Sender            = "SENDER"
+  toJSON Starling          = "STARLING"
+  toJSON LoanCounterParty  = "LOAN"
 
 data CountryCode
   = AC | AD | AE | AF | AG | AI | AL | AM | AN | AO | AQ | AR
@@ -257,12 +259,60 @@ data LastPayment = LastPayment
   , lastAmount :: CurrencyAndAmount
   } deriving (Show, Generic, ToJSON, FromJSON)
 
-data NextPaymentDatesReponse = NextPaymentDatesResponse
+data NextPaymentDatesResponse = NextPaymentDatesResponse
   { nextPaymentDates :: [Day]
   } deriving (Show, Generic, ToJSON, FromJSON)
 
-newtype PayeeUid = PayeeUid UUID deriving (Show, Generic, ToJSON, FromJSON)
+data Payee = Payee
+  { payeeUid :: PayeeUid
+  , payeeName :: String
+  , phoneNumber :: String
+  , payeeType :: PayeeType
+  , firstName :: Maybe String
+  , middleName :: Maybe String
+  , lastName :: Maybe String
+  , businessName :: Maybe String
+  , dateOfBirth :: Maybe Day
+  , accounts :: [PayeeAccount]
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data PayeeAccount = PayeeAccount
+  { payeeAccountUid :: PayeeAccountUid
+  , payeeChannelType :: PayeeChannelType
+  , description :: String
+  , defaultAccount :: Bool
+  , countryCode :: CountryCode
+  , accountIdentifier :: String
+  , bankIdentifier :: String
+  , bankIdentifierType :: BankIdentifierType
+  , lastReferences :: [String]
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
 newtype PayeeAccountUid = PayeeAccountUid UUID deriving (Show, Generic, ToJSON, FromJSON)
+
+data PayeeChannelType = BANK_ACCOUNT | SETTLE_UP | NEARBY deriving (Show, Generic, ToJSON, FromJSON)
+
+data PayeePayment = PayeePayment
+  { paymentUid :: PaymentUid
+  , amount :: CurrencyAndAmount
+  , reference :: String
+  , createdAt :: ZonedTime
+  , spendingCategory :: SpendingCategory
+  , paymentAmount :: CurrencyAndAmount
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data Payees = Payees
+  { payees :: [Payee]
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data PayeeType = BUSINESS | INDIVIDUAL deriving (Show, Generic, ToJSON, FromJSON)
+
+newtype PayeeUid = PayeeUid UUID deriving (Show, Generic, ToJSON, FromJSON)
+
+
+data Payments = Payments
+  { payments :: [PayeePayment]
+  } deriving (Show, Generic, ToJSON, FromJSON)
 
 data PaymentOrder = PaymentOrder
   { paymentOrderUid :: PaymentOrderUid
@@ -323,6 +373,39 @@ data PaymentStatusDetails = PaymentStatusDetails
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 newtype PaymentUid = PaymentUid UUID deriving (Show, Generic, ToJSON, FromJSON)
+
+data RecurrenceRule = RecurrenceRule
+  { startDate :: Day
+  , frequency :: String -- enum ?
+  , interval :: Maybe Int
+  , count :: Maybe Int
+  , untilDate :: Maybe Day
+  , weekStart :: Maybe String -- enum ?
+  , days :: Maybe [String] -- enum ?
+  , monthDay :: Maybe Int
+  , monthWeek :: Maybe Int
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data ScheduledPayment = ScheduledPayment
+  { accountHolderUid :: AccountHolderUid
+  , paymentOrderUid :: PaymentOrderUid
+  , categoryUid :: CategoryUid
+  , nextPaymentAmount :: CurrencyAndAmount
+  , reference :: String
+  , payeeUid :: PayeeUid
+  , payeeAccountUid :: PayeeAccountUid
+  , recepientName :: Maybe String
+  , recurrenceRule :: RecurrenceRule
+  , startDate :: Maybe Day
+  , nextDate :: Maybe Day
+  , endDate :: Maybe Day
+  , paymentType :: String
+  , spendingCategory :: SpendingCategory
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data ScheduledPayments = ScheduledPayments
+  { scheduledPayments :: [ScheduledPayment]
+  } deriving (Show, Generic, ToJSON, FromJSON)
 
 data SignedCurrencyAndAmount = SignedCurrencyAndAmount
   { currency   :: Currency

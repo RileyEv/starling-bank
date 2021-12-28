@@ -12,6 +12,7 @@ import Bank.Starling.API.Core
 import Bank.Starling.API.Schemas
   ( AccountUid(..)
   , CategoryUid(..)
+  , NextPaymentDatesResponse
   , PaymentOrderUid(..)
   , PaymentOrder
   , PaymentOrderPaymentsResponse
@@ -34,7 +35,7 @@ standingOrder (AccountUid accountUid) (CategoryUid categoryUid) (PaymentOrderUid
 
 -- | GET: @​/api/v2/payments/local/account/{accountUid}/category/{categoryUid}/standing-orders/{paymentOrderUid}/upcoming-payments@
 --   Scopes: @["standing-order:read"]@
-standingOrderUpcomingPayments :: AccountUid -> CategoryUid -> PaymentOrderUid -> Endpoint -> AccessToken -> IO (Maybe NextPaymentsDateResponse)
+standingOrderUpcomingPayments :: AccountUid -> CategoryUid -> PaymentOrderUid -> Endpoint -> AccessToken -> IO (Maybe NextPaymentDatesResponse)
 standingOrderUpcomingPayments (AccountUid accountUid) (CategoryUid categoryUid) (PaymentOrderUid paymentOrderUid)
   = getWithAuth
      (  "/api/v2/payments/local/account"
@@ -56,21 +57,3 @@ paymentOrder (PaymentOrderUid paymentOrderUid)
 paymentOrderPayments :: PaymentOrderUid -> Endpoint -> AccessToken -> IO (Maybe PaymentOrderPaymentsResponse)
 paymentOrderPayments (PaymentOrderUid paymentOrderUid)
   = getWithAuth ("/api/v2/payments/local/payment-order" </> show paymentOrderUid </> "payments")
-
--- | GET: @​/api​/v2​/direct-debits/mandates/account/{accountUid}@
---   Scopes: @["mandate:read"]@
--- mandatesByAccount :: AccountUid -> Endpoint -> AccessToken -> IO (Maybe DirectDebitMandates)
--- mandatesByAccount (AccountUid accountUid)
---   = getWithAuth ("/api/v2/direct-debit/mandates/account" </> accountUid)
-
--- | GET: @​/api​/v2​/direct-debits/mandates/{mandateUid}@
---   Scopes: @["mandate:read"]@
--- mandate :: DirectDebitMandateUid -> Endpoint -> AccessToken -> IO (Maybe DirectDebitMandate)
--- mandate (DirectDebitMandateUid directDebitMandateUid)
---   = getWithAuth ("/api/v2/direct-debit/mandates" </> directDebitMandateUid)
-
--- | GET: @​/api​/v2​/direct-debits/mandates/{mandateUid}@
---   Scopes: @["mandate:read"]@
--- mandateTransactionHistory :: DirectDebitMandateUid -> Endpoint -> AccessToken -> IO (Maybe DirectDebitMandate)
--- mandateTransactionHistory (DirectDebitMandateUid directDebitMandateUid)
---   = getWithAuth ("/api/v2/direct-debit/mandates" </> directDebitMandateUid </> "payments")
