@@ -2,14 +2,18 @@
 module Bank.Starling.API.Schemas where
 
 import Data.Aeson (FromJSON (..), ToJSON(..), withText)
+import Data.Time.LocalTime (ZonedTime)
+import Data.Time.Calendar (Day)
+import Data.UUID (UUID)
+
 import GHC.Generics (Generic)
 
 data Account = Account
   { accountUid      :: AccountUid
   , accountType     :: AccountType
-  , defaultCategory :: String
+  , defaultCategory :: CategoryUid
   , currency        :: Currency
-  , createdAt       :: String
+  , createdAt       :: ZonedTime
   , name            :: String
   } deriving (Show, Generic, ToJSON, FromJSON)
 
@@ -59,7 +63,7 @@ newtype Accounts = Accounts
 data AccountStatementPeriod = AccountStatementPeriod
   { period  :: String
   , partial :: Bool
-  , endsAt  :: Maybe String
+  , endsAt  :: Maybe ZonedTime
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 newtype AccountStatementPeriods = AccountStatementPeriods
@@ -80,8 +84,8 @@ instance ToJSON AccountType where
   toJSON FixedTermDeposit = "FIXED_TERM_DEPOSIT"
   toJSON Loan             = "LOAN"
 
-newtype AccountUid = AccountUid String deriving (Show, Generic, ToJSON, FromJSON)
-newtype AccountHolderUid = AccountHolderUid String deriving (Show, Generic, ToJSON, FromJSON)
+newtype AccountUid = AccountUid UUID deriving (Show, Generic, ToJSON, FromJSON)
+newtype AccountHolderUid = AccountHolderUid UUID deriving (Show, Generic, ToJSON, FromJSON)
 
 data Address = Address
   { line1       :: String
@@ -90,6 +94,11 @@ data Address = Address
   , postTown    :: String
   , postCode    :: String
   , countryCode :: String
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data Addresses = Addresses
+  { current :: Address
+  , previous :: [Address]
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data Balance = Balance
@@ -111,6 +120,8 @@ data Business = Business
   , email                     :: String
   , phone                     :: String
   } deriving (Show, Generic, ToJSON, FromJSON)
+
+newtype CategoryUid = CategoryUid UUID deriving (Show, Generic, ToJSON, FromJSON)
 
 data ConfirmationOfFundsResponse = ConfirmationOfFundsResponse
   { requestedAmountAvailableToSpend :: Bool
@@ -186,6 +197,34 @@ data Currency
   | XBD | XCD | XDR | XOF | XPD | XPF | XPT | XSU | XTS | XUA
   | XXX | YER | ZAR | ZMW | ZWL deriving (Show, Generic, ToJSON, FromJSON)
 
+data CurrencyAndAmount = CurrencyAndAmount
+  { currency :: Currency
+  , minorUnits :: Int
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data DirectDebitMandate = DirectDebitMandate
+  { uid            :: DirectDebitMandateUid
+  , reference      :: String
+  , status         :: String -- enum ?
+  , source         :: String -- enum ?
+  , created        :: ZonedTime
+  , cancelled      :: Maybe ZonedTime
+  , nextDate       :: Maybe Day
+  , lastDate       :: Maybe Day
+  , originatorName :: String
+  , originatorUid  :: UUID
+  , merchantUid    :: UUID
+  , lastPayment    :: Maybe LastPayment
+  , accountUid     :: AccountUid
+  , categoryUid    :: CategoryUid
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data DirectDebitMandates = DirectDebitMandates
+  { mandates :: [DirectDebitMandate]
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+newtype DirectDebitMandateUid = DirectDebitMandateUid UUID deriving (Show, Generic, ToJSON, FromJSON)
+
 data IdentifierType = SortCode | IbanBic | AbaAch deriving (Show, Generic)
 instance FromJSON IdentifierType where
   parseJSON = withText "accountType" $ \case
@@ -202,9 +241,9 @@ data Individual = Individual
   { title       :: String
   , firstName   :: String
   , lastName    :: String
-  , dateOfBirth :: String
+  , dateOfBirth :: Day
   , email       :: String
-  , phoneNumber :: String
+  , phone       :: String
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data Joint = Joint
@@ -212,6 +251,78 @@ data Joint = Joint
   , personOne :: Individual
   , personTwo :: Individual
   } deriving (Show, Generic, ToJSON, FromJSON)
+
+data LastPayment = LastPayment
+  { lastDate   :: Day
+  , lastAmount :: CurrencyAndAmount
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data NextPaymentDatesReponse = NextPaymentDatesResponse
+  { nextPaymentDates :: [Day]
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+newtype PayeeUid = PayeeUid UUID deriving (Show, Generic, ToJSON, FromJSON)
+newtype PayeeAccountUid = PayeeAccountUid UUID deriving (Show, Generic, ToJSON, FromJSON)
+
+data PaymentOrder = PaymentOrder
+  { paymentOrderUid :: PaymentOrderUid
+  , amount :: CurrencyAndAmount
+  , reference :: String
+  , payeeUid :: PayeeUid
+  , payeeAccountUid :: PayeeAccountUid
+  , spendingCategory :: Maybe String
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data PaymentOrderPayment = PaymentOrderPayment
+  { paymentUid :: PaymentUid
+  , amount :: CurrencyAndAmount
+  , reference :: String
+  , payeeUid :: PayeeUid
+  , payeeAccountUid :: PayeeAccountUid
+  , createdAt :: ZonedTime
+  , completedAt :: Maybe ZonedTime
+  , rejectedAt :: Maybe ZonedTime
+  , paymentStatusDetails :: PaymentStatusDetails
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data PaymentOrderPaymentsResponse = PaymentOrderPaymentsResponse
+  { payments :: [PaymentOrderPayment]
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+newtype PaymentOrderUid = PaymentOrderUid UUID deriving (Show, Generic, ToJSON, FromJSON)
+
+data PaymentStatus = Accepted | Rejected | Pending deriving (Show, Generic)
+instance FromJSON PaymentStatus where
+  parseJSON = withText "accountType" $ \case
+      "ACCEPTED" -> return Accepted
+      "REJECTED" -> return Rejected
+      "PENDING"  -> return Pending
+      _     -> fail "string is not one of known enum values"
+instance ToJSON PaymentStatus where
+  toJSON Accepted = "ACCEPTED"
+  toJSON Rejected = "REJECTED"
+  toJSON Pending  = "PENDING"
+
+data PaymentStatusDescription
+  = ACCEPTED
+  | QUALIFIED_ACCEPT_WITHIN_TWO_HOURS
+  | QUALIFIED_ACCEPT_UNSPECIFIED_DAY
+  | QUALIFIED_ACCEPT_SAME_DAY
+  | QUALIFIED_ACCEPT_NEXT_CALENDAR_DAY
+  | QUALIFIED_ACCEPT_NEXT_WORKING_DAY
+  | QUALIFIED_ACCEPT_AFTER_NEXT_WORKING_DAY
+  | DESTINATION_ACCOUNT_INVALID
+  | DESTINATION_ACCOUNT_NAME_MISMATCH
+  | REFERENCE_INFORMATION_INCORRECT
+  | DESTINATION_ACCOUNT_UNAVAILABLE
+  | PENDING deriving (Show, Generic, ToJSON, FromJSON)
+
+data PaymentStatusDetails = PaymentStatusDetails
+  { paymentStatus :: PaymentStatus
+  , description :: PaymentStatusDescription
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+newtype PaymentUid = PaymentUid UUID deriving (Show, Generic, ToJSON, FromJSON)
 
 data SignedCurrencyAndAmount = SignedCurrencyAndAmount
   { currency   :: Currency
@@ -229,73 +340,101 @@ newtype SpendingCategory = SpendingCategory String deriving (Show, Generic, ToJS
 
 data SpendingCategoryBreakdown = SpendingCategoryBreakdown
   { spendingCategory :: SpendingCategory
-  , totalSpend :: Double
-  , totalRecieved :: Double
-  , netSpend :: Double
-  , netDirection :: TransactionDirection
-  , currency :: Currency
-  , percentage :: Double
+  , totalSpend       :: Double
+  , totalRecieved    :: Double
+  , netSpend         :: Double
+  , netDirection     :: TransactionDirection
+  , currency         :: Currency
+  , percentage       :: Double
   , transactionCount :: Int
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data SpendingCategorySummary = SpendingCategorySummary
-  { period     :: String
-  , totalSpend :: Double
-  , totalRecieved :: Double
-  , netSpend :: Double
+  { period           :: String
+  , totalSpend       :: Double
+  , totalRecieved    :: Double
+  , netSpend         :: Double
   , totalSpendNetOut :: Double
   , totalSpendNetIn  :: Double
-  , currency :: Currency
-  , direction :: TransactionDirection
-  , breakdown :: [SpendingCategoryBreakdown]
+  , currency         :: Currency
+  , direction        :: TransactionDirection
+  , breakdown        :: [SpendingCategoryBreakdown]
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data SpendingCounterPartyBreakdown = SpendingCounterPartyBreakdown
-  { counterPartyUid :: String
+  { counterPartyUid  :: UUID
   , counterPartyType :: CounterPartyType
   , counterPartyName :: String
-  , totalSpend :: Double
-  , totalRecieved :: Double
-  , netSpend :: Double
-  , netDirection :: TransactionDirection
-  , currency :: Currency
-  , percentage :: Double
+  , totalSpend       :: Double
+  , totalRecieved    :: Double
+  , netSpend         :: Double
+  , netDirection     :: TransactionDirection
+  , currency         :: Currency
+  , percentage       :: Double
   , transactionCount :: Int
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data SpendingCounterPartySummary = SpendingCounterPartySummary
-  { period     :: String
-  , totalSpend :: Double
-  , totalRecieved :: Double
-  , netSpend :: Double
+  { period           :: String
+  , totalSpend       :: Double
+  , totalRecieved    :: Double
+  , netSpend         :: Double
   , totalSpendNetOut :: Double
   , totalSpendNetIn  :: Double
-  , currency :: Currency
-  , direction :: TransactionDirection
-  , breakdown :: [SpendingCounterPartyBreakdown]
+  , currency         :: Currency
+  , direction        :: TransactionDirection
+  , breakdown        :: [SpendingCounterPartyBreakdown]
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data SpendingCountryBreakdown = SpendingCountryBreakdown
-  { countryCode :: CountryCode
-  , totalSpend :: Double
-  , totalRecieved :: Double
-  , netSpend :: Double
-  , netDirection :: TransactionDirection
-  , currency :: Currency
-  , percentage :: Double
+  { countryCode      :: CountryCode
+  , totalSpend       :: Double
+  , totalRecieved    :: Double
+  , netSpend         :: Double
+  , netDirection     :: TransactionDirection
+  , currency         :: Currency
+  , percentage       :: Double
   , transactionCount :: Int
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data SpendingCountrySummary = SpendingCountrySummary
-  { period     :: String
-  , totalSpend :: Double
-  , totalRecieved :: Double
-  , netSpend :: Double
+  { period           :: String
+  , totalSpend       :: Double
+  , totalRecieved    :: Double
+  , netSpend         :: Double
   , totalSpendNetOut :: Double
   , totalSpendNetIn  :: Double
-  , currency :: Currency
-  , direction :: TransactionDirection
-  , breakdown :: [SpendingCountryBreakdown]
+  , currency         :: Currency
+  , direction        :: TransactionDirection
+  , breakdown        :: [SpendingCountryBreakdown]
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data StandingOrder = StandingOrder
+  { paymentOrderUid         :: PaymentOrderUid
+  , amount                  :: CurrencyAndAmount
+  , reference               :: String
+  , payeeUid                :: PayeeUid
+  , payeeAccountUid         :: PayeeAccountUid
+  , standingOrderRecurrence :: StandingOrderRecurrence
+  , nextDate                :: Maybe Day
+  , cancelledAt             :: Maybe ZonedTime
+  , updateAt                :: Maybe ZonedTime
+  , spendingCategory        :: Maybe String
+  , categoryUid             :: CategoryUid
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data StandingOrderFrequency = DAILY | WEEKLY | MONTHLY | YEARLY deriving (Show, Generic, ToJSON, FromJSON)
+
+data StandingOrderRecurrence = StandingOrderRecurrence
+  { startDate :: Day
+  , frequency :: StandingOrderFrequency
+  , interval  :: Maybe Int
+  , count     :: Maybe Int
+  , untilDate :: Maybe Day
+  } deriving (Show, Generic, ToJSON, FromJSON)
+
+data StandingOrdersResponse = StandingOrdersResponse
+  { standingOrders :: [StandingOrder]
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data TokenIdentity = TokenIdentity
@@ -304,7 +443,7 @@ data TokenIdentity = TokenIdentity
   , expiresInSeconds   :: Int
   , scopes             :: [String]
   , authenticated      :: Bool
-  , applicationUserUid :: String
+  , applicationUserUid :: UUID
   } deriving (Show, Generic, ToJSON, FromJSON)
 
 data TransactionDirection = In | Out deriving (Show, Generic)

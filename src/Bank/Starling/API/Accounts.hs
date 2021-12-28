@@ -34,7 +34,7 @@ accounts = getWithAuth "/api/v2/accounts"
 -- | GET: @/api/v2/accounts/{accountUid}/statement/available-periods@
 --   Scopes: @["statement-csv:read", "statement-pdf:read"]@
 statementPeriods :: AccountUid -> Endpoint -> AccessToken -> IO (Maybe AccountStatementPeriods)
-statementPeriods (AccountUid accountUid) = getWithAuth ("/api/v2/accounts" </> accountUid </> "statement/available-periods")
+statementPeriods (AccountUid accountUid) = getWithAuth ("/api/v2/accounts" </> show accountUid </> "statement/available-periods")
 
 -- | GET: @/api​/v2​/accounts​/{accountUid}​/statement​/download@
 --   Scopes: @["statement-csv:read", "statement-pdf:read"]@
@@ -49,15 +49,15 @@ statementDownloadDateRange (AccountUid accountUid) startDate endDate path = erro
 -- | GET: @/api/v2/accounts/{accountUid}/balance@
 --   Scopes: @["balance:read"]@
 balance :: AccountUid -> Endpoint -> AccessToken -> IO (Maybe Balance)
-balance (AccountUid accountUid) = getWithAuth ("/api/v2/accounts" </> accountUid </> "balance")
+balance (AccountUid accountUid) = getWithAuth ("/api/v2/accounts" </> show accountUid </> "balance")
 
 -- | GET: @/api/v2/accounts/{accountUid}/identifiers@
 --   Scopes: @["account-identifier:read"]@
 identifiers :: AccountUid -> Endpoint -> AccessToken -> IO (Maybe AccountIdentifiers)
-identifiers (AccountUid accountUid) = getWithAuth ("/api/v2/accounts" </> accountUid </> "identifiers")
+identifiers (AccountUid accountUid) = getWithAuth ("/api/v2/accounts" </> show accountUid </> "identifiers")
 
 -- | GET: @/api/v2/accounts/{accountUid}/confirmation-of-funds@
 --   Scopes: @["confirmation-of-funds:read"]@
 confirmationOfFunds :: AccountUid -> Int -> Endpoint -> AccessToken -> IO (Maybe ConfirmationOfFundsResponse)
 confirmationOfFunds (AccountUid accountUid) targetAmountInMinorUnits
-  = getWithAuth ("/api/v2/accounts" </> accountUid </> "confirmation-of-funds" ++ "?targetAmountInMinorUnits=" ++ show targetAmountInMinorUnits)
+  = getWithAuth ("/api/v2/accounts" </> show accountUid </> "confirmation-of-funds" ++ "?targetAmountInMinorUnits=" ++ show targetAmountInMinorUnits)
