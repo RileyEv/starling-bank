@@ -17,7 +17,7 @@ Haddock :fish: [starling.bank.rly.rocks](https://starling.bank.rly.rocks)
   - Payees
   - Payments
   - Spending Insights
-  - User Identites
+  - User Identities
   
 ## Roadmap
 - Signed message requests
@@ -33,3 +33,18 @@ Haddock :fish: [starling.bank.rly.rocks](https://starling.bank.rly.rocks)
    - Settle-up
    - Spaces
 - Generalised account interaction `->` [bank](https://github.com/RileyEv/bank)
+
+## Usage
+```haskell
+import Bank.Starling.API.Core (AccessToken(..), Endpoint(Production), getApiEndpoint)
+import qualified Bank.Starling.API.Accounts as Accounts
+
+main :: IO ()
+main = do
+  let token = AccessToken (read "<token>")
+  let endpoint = getApiEndpoint Production -- Or Sandbox
+  
+  accounts <- Accounts.accounts endpoint token
+  print accounts
+```
+  
