@@ -27,9 +27,9 @@ import System.FilePath.Posix ((</>))
 import System.Environment (getEnvironment)
 
 
-data Environment = Sandbox | Production
-newtype Endpoint = Endpoint String
-newtype AccessToken = AccessToken String
+data Environment = Sandbox | Production deriving Show
+newtype Endpoint = Endpoint String deriving Show
+newtype AccessToken = AccessToken String deriving Show
 
 data Month = January | February | March | April
            | May | June | July | August | September
