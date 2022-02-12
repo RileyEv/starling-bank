@@ -2,15 +2,9 @@ module Bank.Starling.API.Addresses
   ( addresses
   ) where
 
-import Bank.Starling.API.Core
-  ( AccessToken
-  , Endpoint
-  , getWithAuth
-  )
+import           Bank.Starling.API.Core    (AccessToken, Endpoint, getWithAuth)
 
-import Bank.Starling.API.Schemas
-  ( Addresses
-  )
+import           Bank.Starling.API.Schemas (Addresses)
 
 
 -- | GET: <​/api​/v2​/addresses>

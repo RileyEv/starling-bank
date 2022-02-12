@@ -1,39 +1,31 @@
 module Bank.Starling.API.Core
-  ( Environment(..)
-  , Endpoint(..)
-  , AccessToken(..)
-  , Month(..)
-  , (</>)
-  , getWithAuth
-  , getApiEndpoint
-  ) where
-
-import Control.Lens
-  ( (&)
-  , (^.)
-  , (?~)
+  ( Environment (..),
+    Endpoint (..),
+    AccessToken (..),
+    Month (..),
+    (</>),
+    getWithAuth,
+    getApiEndpoint,
   )
-import Data.Aeson (FromJSON)
-import Data.String (fromString)
-import Network.Wreq
-  ( asJSON
-  , getWith
-  , oauth2Bearer
-  , defaults
-  , auth
-  , responseBody
-  )
-import System.FilePath.Posix ((</>))
-import System.Environment (getEnvironment)
+where
 
+import           Control.Lens          ((&), (?~), (^.))
+import           Data.Aeson            (FromJSON)
+import           Data.String           (fromString)
+import           Network.Wreq          (asJSON, auth, defaults, getWith, oauth2Bearer, responseBody)
+import           System.Environment    (getEnvironment)
+import           System.FilePath.Posix ((</>))
 
-data Environment = Sandbox | Production
+data Environment = Sandbox | Production deriving (Show)
+
 newtype Endpoint = Endpoint String
-newtype AccessToken = AccessToken String
+  deriving (Show)
 
-data Month = January | February | March | April
-           | May | June | July | August | September
-           | October | November | December
+newtype AccessToken = AccessToken String
+  deriving (Show)
+
+data Month = January | February | March | April | May | June | July | August | September | October | November | December
+
 instance Show Month where
   show January   = "JANUARY"
   show February  = "FEBRUARY"
@@ -51,7 +43,6 @@ instance Show Month where
 getApiEndpoint :: Environment -> Endpoint
 getApiEndpoint Sandbox    = Endpoint "https://api-sandbox.starlingbank.com"
 getApiEndpoint Production = Endpoint "https://api.starlingbank.com"
-
 
 getWithAuth :: FromJSON a => String -> Endpoint -> AccessToken -> IO (Maybe a)
 getWithAuth uri (Endpoint endpoint) (AccessToken accessToken) = do

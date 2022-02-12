@@ -3,17 +3,10 @@ module Bank.Starling.API.UserIdentities
   , token
   ) where
 
-import Bank.Starling.API.Core
-  ( AccessToken
-  , Endpoint
-  , getWithAuth
-  )
+import           Bank.Starling.API.Core    (AccessToken, Endpoint, getWithAuth)
 
-    
-import Bank.Starling.API.Schemas
-  ( TokenIdentity(..)
-  , Individual(..)
-  )
+
+import           Bank.Starling.API.Schemas (Individual (..), TokenIdentity (..))
 
 
 -- | GET: </api/v2/identity/individual>

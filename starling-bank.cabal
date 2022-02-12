@@ -22,7 +22,8 @@ extra-source-files: CHANGELOG.md
 
 library
     exposed-modules:
-        Bank.Starling.API.Accounts
+        Bank.Starling
+      , Bank.Starling.API.Accounts
       , Bank.Starling.API.AccountHolder
       , Bank.Starling.API.Addresses
       , Bank.Starling.API.Core
@@ -44,5 +45,6 @@ library
       , filepath
       , uuid
       , time
+      , bank
     hs-source-dirs:   src
     default-language: Haskell2010

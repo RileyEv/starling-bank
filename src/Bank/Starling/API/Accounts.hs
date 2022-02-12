@@ -8,22 +8,17 @@ module Bank.Starling.API.Accounts
   , confirmationOfFunds
   ) where
 
-import Bank.Starling.API.Core
-  ( AccessToken
-  , Endpoint
-  , getWithAuth
-  , (</>)
-  )
+import           Bank.Starling.API.Core    (AccessToken, Endpoint, getWithAuth, (</>))
 
-    
-import Bank.Starling.API.Schemas
-  ( Accounts
-  , AccountIdentifiers
-  , AccountStatementPeriods
-  , AccountUid(..)
-  , Balance
-  , ConfirmationOfFundsResponse
-  )
+
+import           Bank.Starling.API.Schemas
+    ( AccountIdentifiers
+    , AccountStatementPeriods
+    , AccountUid (..)
+    , Accounts
+    , Balance
+    , ConfirmationOfFundsResponse
+    )
 
 
 -- | GET: </api/v2/accounts>
