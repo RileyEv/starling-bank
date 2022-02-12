@@ -12,30 +12,19 @@ where
 import           Control.Lens          ((&), (?~), (^.))
 import           Data.Aeson            (FromJSON)
 import           Data.String           (fromString)
-import           Network.Wreq          (asJSON, auth, defaults, getWith,
-                                        oauth2Bearer, responseBody)
+import           Network.Wreq          (asJSON, auth, defaults, getWith, oauth2Bearer, responseBody)
 import           System.Environment    (getEnvironment)
 import           System.FilePath.Posix ((</>))
 
 data Environment = Sandbox | Production deriving (Show)
 
-newtype Endpoint = Endpoint String deriving (Show)
+newtype Endpoint = Endpoint String
+  deriving (Show)
 
-newtype AccessToken = AccessToken String deriving (Show)
+newtype AccessToken = AccessToken String
+  deriving (Show)
 
-data Month
-  = January
-  | February
-  | March
-  | April
-  | May
-  | June
-  | July
-  | August
-  | September
-  | October
-  | November
-  | December
+data Month = January | February | March | April | May | June | July | August | September | October | November | December
 
 instance Show Month where
   show January   = "JANUARY"

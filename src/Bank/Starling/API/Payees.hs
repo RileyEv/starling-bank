@@ -4,11 +4,10 @@ module Bank.Starling.API.Payees
   , payments
   ) where
 
-import           Bank.Starling.API.Core    (AccessToken, Endpoint, getWithAuth,
-                                            (</>))
+import           Bank.Starling.API.Core    (AccessToken, Endpoint, getWithAuth, (</>))
 
-import           Bank.Starling.API.Schemas (PayeeAccountUid (..), PayeeUid (..),
-                                            Payees, Payments, ScheduledPayments)
+import           Bank.Starling.API.Schemas
+    (PayeeAccountUid (..), PayeeUid (..), Payees, Payments, ScheduledPayments)
 
 
 -- | GET: <​/api​/v2​/payees>

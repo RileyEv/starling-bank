@@ -10,13 +10,11 @@ module Bank.Starling.API.AccountHolder
   ) where
 
 
-import           Bank.Starling.API.Core    (AccessToken, Endpoint, getWithAuth,
-                                            (</>))
+import           Bank.Starling.API.Core    (AccessToken, Endpoint, getWithAuth, (</>))
 
 
-import           Bank.Starling.API.Schemas (AccountHolder, AccountHolderName,
-                                            Address, Business, Individual,
-                                            Joint, SoleTrader)
+import           Bank.Starling.API.Schemas
+    (AccountHolder, AccountHolderName, Address, Business, Individual, Joint, SoleTrader)
 
 -- * General Holder APIs
 

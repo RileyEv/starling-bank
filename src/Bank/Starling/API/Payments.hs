@@ -6,15 +6,18 @@ module Bank.Starling.API.Payments
   , paymentOrderPayments
   ) where
 
-import           Bank.Starling.API.Core    (AccessToken, Endpoint, getWithAuth,
-                                            (</>))
+import           Bank.Starling.API.Core    (AccessToken, Endpoint, getWithAuth, (</>))
 
-import           Bank.Starling.API.Schemas (AccountUid (..), CategoryUid (..),
-                                            NextPaymentDatesResponse,
-                                            PaymentOrder,
-                                            PaymentOrderPaymentsResponse,
-                                            PaymentOrderUid (..), StandingOrder,
-                                            StandingOrdersResponse)
+import           Bank.Starling.API.Schemas
+    ( AccountUid (..)
+    , CategoryUid (..)
+    , NextPaymentDatesResponse
+    , PaymentOrder
+    , PaymentOrderPaymentsResponse
+    , PaymentOrderUid (..)
+    , StandingOrder
+    , StandingOrdersResponse
+    )
 
 
 -- | GET: <​/api/v2/payments/local/account/{accountUid}/category/{categoryUid}/standing-orders>

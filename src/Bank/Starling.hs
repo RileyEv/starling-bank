@@ -7,14 +7,10 @@
 module Bank.Starling where
 
 import qualified Bank.Core                       as Bank
-import qualified Bank.Starling.API.AccountHolder as AccountHolderAPI (accountHolder,
-                                                                      individual)
-import qualified Bank.Starling.API.Accounts      as AccountsAPI (accounts,
-                                                                 balance,
-                                                                 identifiers)
-import           Bank.Starling.API.Core          (AccessToken, Endpoint,
-                                                  Environment (Production),
-                                                  getApiEndpoint)
+import qualified Bank.Starling.API.AccountHolder as AccountHolderAPI (accountHolder, individual)
+import qualified Bank.Starling.API.Accounts      as AccountsAPI (accounts, balance, identifiers)
+import           Bank.Starling.API.Core
+    (AccessToken, Endpoint, Environment (Production), getApiEndpoint)
 import qualified Bank.Starling.API.Schemas       as StarlingSchemas
 
 -- | Bank interface
@@ -35,25 +31,26 @@ initStarlingAccount = undefined -- TODO: Needs to pull account details down,
 -- Maybe also require that other values are given
 
 data Starling = Starling
-  { accessToken :: AccessToken,
-    endpoint    :: Endpoint,
-    scopes      :: Maybe [String] -- TODO: Scope type
-  }
+                  { accessToken :: AccessToken
+                  , endpoint    :: Endpoint
+                  , scopes      :: Maybe [String] -- TODO: Scope type
+                  }
   deriving (Show)
 
 data StarlingAccount = StarlingAccount
-  { starling        :: Starling,
-    accountUid      :: StarlingSchemas.AccountUid,
-    accountType     :: StarlingSchemas.AccountType,
-    name            :: String,
-    currency        :: Bank.Currency,
-    defaultCategory :: StarlingSchemas.CategoryUid
-  }
+                         { starling        :: Starling
+                         , accountUid      :: StarlingSchemas.AccountUid
+                         , accountType     :: StarlingSchemas.AccountType
+                         , name            :: String
+                         , currency        :: Bank.Currency
+                         , defaultCategory :: StarlingSchemas.CategoryUid
+                         }
   deriving (Show)
 
 data StarlingSavingPot = StarlingSavingPot
-  {
-  }
+                           { temp  :: String
+                           , temp2 :: String
+                           }
   deriving (Show)
 
 instance Bank.Bank Starling where
