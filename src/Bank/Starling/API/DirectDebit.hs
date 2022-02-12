@@ -5,19 +5,12 @@ module Bank.Starling.API.DirectDebit
   , mandateTransactionHistory
   ) where
 
-import Bank.Starling.API.Core
-  ( AccessToken
-  , Endpoint
-  , getWithAuth
-  , (</>)
-  )
+import           Bank.Starling.API.Core    (AccessToken, Endpoint, getWithAuth,
+                                            (</>))
 
-import Bank.Starling.API.Schemas
-  ( AccountUid(..)
-  , DirectDebitMandate
-  , DirectDebitMandates
-  , DirectDebitMandateUid(..)
-  )
+import           Bank.Starling.API.Schemas (AccountUid (..), DirectDebitMandate,
+                                            DirectDebitMandateUid (..),
+                                            DirectDebitMandates)
 
 
 -- | GET: <​/api​/v2​/direct-debits/mandates>

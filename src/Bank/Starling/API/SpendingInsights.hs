@@ -4,21 +4,14 @@ module Bank.Starling.API.SpendingInsights
   , byCategory
   ) where
 
-import Bank.Starling.API.Core
-  ( AccessToken
-  , Endpoint
-  , Month
-  , getWithAuth
-  , (</>)
-  )
+import           Bank.Starling.API.Core    (AccessToken, Endpoint, Month,
+                                            getWithAuth, (</>))
 
 
-import Bank.Starling.API.Schemas
-  ( AccountUid(..)
-  , SpendingCounterPartySummary
-  , SpendingCountrySummary
-  , SpendingCategorySummary
-  )
+import           Bank.Starling.API.Schemas (AccountUid (..),
+                                            SpendingCategorySummary,
+                                            SpendingCounterPartySummary,
+                                            SpendingCountrySummary)
 
 
 -- | GET: <​/api​/v2​/accounts​/{accountUid}​/spending-insights​/counter-party>

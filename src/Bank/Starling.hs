@@ -1,120 +1,121 @@
-{-# LANGUAGE RankNTypes, GADTs, RecordWildCards, DuplicateRecordFields, NamedFieldPuns #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE NamedFieldPuns        #-}
+{-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE RecordWildCards       #-}
+
 module Bank.Starling where
 
-import           Bank.Starling.API.Core ( AccessToken, getApiEndpoint, Environment (Production), Endpoint)
-import qualified Bank.Starling.API.Schemas as Schemas
-import qualified Bank.Starling.API.Accounts as AccountsAPI (accounts, balance)
+import qualified Bank.Core                       as Bank
+import qualified Bank.Starling.API.AccountHolder as AccountHolderAPI (accountHolder,
+                                                                      individual)
+import qualified Bank.Starling.API.Accounts      as AccountsAPI (accounts,
+                                                                 balance,
+                                                                 identifiers)
+import           Bank.Starling.API.Core          (AccessToken, Endpoint,
+                                                  Environment (Production),
+                                                  getApiEndpoint)
+import qualified Bank.Starling.API.Schemas       as StarlingSchemas
 
 -- | Bank interface
 
-data Account = forall a. (BankAccount a, Show a) => Account a
-instance Show Account where
-  show (Account a) = show a
-
-data SavingPot = forall pot. (BankSavingPot pot, Show pot) => SavingPot pot
-instance Show SavingPot where
-  show (SavingPot pot) = show pot
-
-data Balance = Balance
-  { clearedBalance :: Schemas.SignedCurrencyAndAmount -- excl pots
-  , effectiveBalance :: Schemas.SignedCurrencyAndAmount -- excl pots
-  , totalClearedBalance :: Schemas.SignedCurrencyAndAmount -- incl pots
-  , totalEffectiveBalance :: Schemas.SignedCurrencyAndAmount -- incl pots
-  , pendingTransactions :: Schemas.SignedCurrencyAndAmount
-  , acceptedOverdraft :: Schemas.SignedCurrencyAndAmount
-  } deriving (Show)
-
-data AccountDetails = AccountDetails
-  {
-  } deriving (Show)
-
-
-
-class Bank b where
-  getAccounts :: b -> IO (Maybe [Account])
-
-class BankAccount a where
-  getDetails :: a -> IO (Maybe ()) -- TODO
-  getIdentifiers :: a -> IO (Maybe ()) -- TODO
-  getAccountBalance :: a -> IO (Maybe Balance)
-  getSavingsPots :: a -> IO (Maybe [SavingPot]) -- If they don't exist on the account just return empty
-
-class BankSavingPot pot where
-  getPotBalance :: pot -> IO (Maybe Balance)
-
-
 -- | Starling implementation of the bank interface.
-
 initStarling :: AccessToken -> IO Starling
 initStarling token = do
   -- TODO: Get scopes allowed with access token then instance methods can check if the required scope exists
-  return Starling
-    { accessToken = token
-    , endpoint = getApiEndpoint Production
-    , scopes = Nothing
-    }
+  return
+    Starling
+      { accessToken = token,
+        endpoint = getApiEndpoint Production,
+        scopes = Nothing
+      }
 
-initStarlingAccount :: AccessToken -> Schemas.AccountUid -> IO (Maybe StarlingAccount)
+initStarlingAccount :: AccessToken -> StarlingSchemas.AccountUid -> IO (Maybe StarlingAccount)
 initStarlingAccount = undefined -- TODO: Needs to pull account details down,
 -- Maybe also require that other values are given
 
-
 data Starling = Starling
-  { accessToken :: AccessToken
-  , endpoint :: Endpoint
-  , scopes :: Maybe [String] -- TODO: Scope type
-  } deriving (Show)
-
+  { accessToken :: AccessToken,
+    endpoint    :: Endpoint,
+    scopes      :: Maybe [String] -- TODO: Scope type
+  }
+  deriving (Show)
 
 data StarlingAccount = StarlingAccount
-  { starling :: Starling
-  , accountUid :: Schemas.AccountUid
-  , accountType :: Schemas.AccountType
-  , name :: String
-  , currency :: Schemas.Currency
-  , defaultCategory :: Schemas.CategoryUid
-  } deriving (Show)
-
+  { starling        :: Starling,
+    accountUid      :: StarlingSchemas.AccountUid,
+    accountType     :: StarlingSchemas.AccountType,
+    name            :: String,
+    currency        :: Bank.Currency,
+    defaultCategory :: StarlingSchemas.CategoryUid
+  }
+  deriving (Show)
 
 data StarlingSavingPot = StarlingSavingPot
   {
-  } deriving (Show)
+  }
+  deriving (Show)
 
-
-
-instance Bank Starling where
-  getAccounts starling@Starling { .. } = do
+instance Bank.Bank Starling where
+  getAccounts starling@Starling {..} = do
     accounts <- AccountsAPI.accounts endpoint accessToken
     return $ case accounts of
-      Just Schemas.Accounts { accounts } -> Just [
-        Account StarlingAccount
-          { starling
-          , accountUid
-          , accountType
-          , name
-          , currency
-          , defaultCategory
-          } | Schemas.Account { .. } <- accounts ]
+      Just StarlingSchemas.Accounts {accounts} ->
+        Just
+          [ Bank.Account
+              StarlingAccount
+                { starling,
+                  accountUid,
+                  accountType,
+                  name,
+                  currency,
+                  defaultCategory
+                }
+            | StarlingSchemas.Account {..} <- accounts
+          ]
       Nothing -> Nothing
 
-
-instance BankAccount StarlingAccount where
-  getDetails _ = return Nothing
-  getIdentifiers _ = return Nothing
-  getAccountBalance StarlingAccount { starling = Starling { .. }, .. } = do
+instance Bank.BankAccount StarlingAccount where
+  getDetails StarlingAccount {starling = Starling {..}, name = accountName, ..} = do
+    details <- AccountHolderAPI.accountHolder endpoint accessToken
+    case details of
+      Just StarlingSchemas.AccountHolder {accountHolderType} -> case accountHolderType of
+        StarlingSchemas.IndividualAccount -> do
+          individual <- AccountHolderAPI.individual endpoint accessToken
+          return $ case individual of
+            Just StarlingSchemas.Individual {..} ->
+              Just
+                Bank.AccountDetails
+                  { holderName = firstName ++ " " ++ lastName,
+                    name = accountName,
+                    currency
+                  }
+            Nothing -> Nothing
+        _ -> return Nothing
+      Nothing -> return Nothing
+  getIdentifiers StarlingAccount {starling = Starling {..}, ..} = do
+    identifiers <- AccountsAPI.identifiers accountUid endpoint accessToken
+    return $ case identifiers of
+      Just StarlingSchemas.AccountIdentifiers {..} -> Just Bank.AccountIdentifiers {accountIdentifier, bankIdentifier}
+      Nothing -> Nothing
+  getAccountBalance StarlingAccount {starling = Starling {..}, ..} = do
     balance <- AccountsAPI.balance accountUid endpoint accessToken
     return $ case balance of
-      Just Schemas.Balance { .. } -> Just Balance
-        { clearedBalance
-        , effectiveBalance
-        , totalClearedBalance
-        , totalEffectiveBalance
-        , pendingTransactions
-        , acceptedOverdraft
-        }
+      Just StarlingSchemas.Balance {..} ->
+        Just
+          Bank.Balance
+            { clearedBalance = signedCurAndAmountToCurAndAmount clearedBalance,
+              effectiveBalance = signedCurAndAmountToCurAndAmount effectiveBalance,
+              totalClearedBalance = signedCurAndAmountToCurAndAmount totalClearedBalance,
+              totalEffectiveBalance = signedCurAndAmountToCurAndAmount totalEffectiveBalance,
+              pendingTransactions = signedCurAndAmountToCurAndAmount pendingTransactions,
+              acceptedOverdraft = signedCurAndAmountToCurAndAmount acceptedOverdraft
+            }
       Nothing -> Nothing
   getSavingsPots _ = return (Just [])
 
-
-instance BankSavingPot StarlingSavingPot where
+instance Bank.BankSavingPot StarlingSavingPot where
   getPotBalance _ = return Nothing
+
+signedCurAndAmountToCurAndAmount :: StarlingSchemas.SignedCurrencyAndAmount -> Bank.CurrencyAndAmount
+signedCurAndAmountToCurAndAmount StarlingSchemas.SignedCurrencyAndAmount {..} = Bank.CurrencyAndAmount {..}

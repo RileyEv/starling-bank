@@ -1,0 +1,6 @@
+packages: .
+
+source-repository-package
+   type: git
+   location: https://github.com/RileyEv/bank
+   tag: e65ce37b218cabc73894b398f190b00161517206

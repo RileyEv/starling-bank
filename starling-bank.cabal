@@ -45,5 +45,6 @@ library
       , filepath
       , uuid
       , time
+      , bank
     hs-source-dirs:   src
     default-language: Haskell2010
